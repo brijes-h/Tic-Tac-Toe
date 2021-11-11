@@ -1,6 +1,7 @@
 # Modules
 import pygame
 import numpy as np
+from pygame.constants import KEYDOWN
 import settings as s
 
 # Initialize pygame
@@ -66,44 +67,43 @@ def checkWinner():
 def vertical_winline(col, winner):
     posX = col * s.SQUARE_SIZE + s.SQUARE_SIZE//2  # column is constant 
     if winner == 1:
-        color = 'white'
+        color = s.O_COLOR
     elif winner == 2:
-        color = 'black'
+        color = s.X_COLOR
     pygame.draw.line(screen, color, (posX, 15), (posX, s.HEIGHT-15), 15)
  
 def horizontal_winline(row, winner):
     posY = row * s.SQUARE_SIZE + s.SQUARE_SIZE//2
     if winner == 1:
-        color = 'white'
+        color = s.O_COLOR
     else:
-        color = 'black'
+        color = s.X_COLOR
     pygame.draw.line(screen, color, (15, posY), (s.WIDTH-15, posY), 15)
 
 def asc_diagonal_winline(winner):
     if winner == 1:
-        color = 'white'
+        color = s.O_COLOR
     else: 
-        color = 'black'
+        color = s.X_COLOR
     pygame.draw.line(screen, color, (15, s.HEIGHT-15), (s.WIDTH-15, 15), 15)
 
 def desc_diagonal_winline(winner):
     if winner == 1:
-        color = 'white'
+        color = s.O_COLOR
     else: 
-        color = 'black'  
+        color = s.X_COLOR  
     pygame.draw.line(screen, color, (15, 15), (s.WIDTH-15, s.HEIGHT-15), 15)
 
-    
-
+# function for drawing Os and Xs
 def figures():
     for row in range(3):
         for col in range(3):
             if board[row][col] == 1: 
-                pygame.draw.circle(screen, 'white', ( int(col * s.SQUARE_SIZE + 83), int(row * s.SQUARE_SIZE + 83)), s.C_RADIUS, s.C_WIDTH)
+                pygame.draw.circle(screen, s.O_COLOR, ( int(col * s.SQUARE_SIZE + 83), int(row * s.SQUARE_SIZE + 83)), s.C_RADIUS, s.C_WIDTH)
 
             elif board[row][col] == 2:
-                pygame.draw.line(screen, 'black', (col * s.SQUARE_SIZE + s.SPACE, row * s.SQUARE_SIZE + s.SQUARE_SIZE - s.SPACE ), (col * s.SQUARE_SIZE + s.SQUARE_SIZE - s.SPACE, row * s.SQUARE_SIZE + s.SPACE), s.CROSS_WIDTH)
-                pygame.draw.line(screen, 'black', (col * s.SQUARE_SIZE + s.SPACE, row * s.SQUARE_SIZE + s.SPACE ), (col * s.SQUARE_SIZE +  s.SQUARE_SIZE - s.SPACE, row * s.SQUARE_SIZE + s.SQUARE_SIZE - s.SPACE), s.CROSS_WIDTH)
+                pygame.draw.line(screen, s.X_COLOR, (col * s.SQUARE_SIZE + s.SPACE, row * s.SQUARE_SIZE + s.SQUARE_SIZE - s.SPACE ), (col * s.SQUARE_SIZE + s.SQUARE_SIZE - s.SPACE, row * s.SQUARE_SIZE + s.SPACE), s.CROSS_WIDTH)
+                pygame.draw.line(screen, s.X_COLOR, (col * s.SQUARE_SIZE + s.SPACE, row * s.SQUARE_SIZE + s.SPACE ), (col * s.SQUARE_SIZE +  s.SQUARE_SIZE - s.SPACE, row * s.SQUARE_SIZE + s.SQUARE_SIZE - s.SPACE), s.CROSS_WIDTH)
 
 def markSquare(row, col, player):
     board[row][col] = player
@@ -118,6 +118,14 @@ def isBoardFull():
                 return False
     
     return True
+
+def restart():
+    screen.fill(s.BG_COLOR)
+    drawLines()
+    player = 1
+    for row in range (s.ROWS):
+        for col in range (s.COLS):
+            board[row][col] = 0
 
 
 drawLines()
@@ -146,5 +154,10 @@ while run:
                 player = player % 2 + 1
 
                 figures()
+            
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r:
+                restart()
+                gameOver = False # changing gameOver to False for the next game
                 
     pygame.display.update()

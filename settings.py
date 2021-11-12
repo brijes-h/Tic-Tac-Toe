@@ -18,4 +18,8 @@ LINE_COLOR = (21,76,121)
 O_COLOR = (237, 233, 213)
 X_COLOR = (55,49,39,255)
 
+# scores
+score = {1: 10, 2:-10, 'Draw':0}
 
+# players 
+p = [1, 2]

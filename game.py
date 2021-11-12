@@ -170,7 +170,7 @@ def playerMove(row, col, player):
     markSquare(row, col, player)
     return 
         
-def compMove():
+def compMove():  
     bestScore = float('-inf')
     new_r = new_c = None
     for row in range(s.ROWS):
@@ -186,7 +186,7 @@ def compMove():
     markSquare(new_r, new_c, 1)
     return
 
-# Minimax ALgorithm
+# Minimax function
 def minimax(depth, alpha, beta, is_maximizing):
     winner = checkWinner()
     if winner != None:
@@ -204,8 +204,7 @@ def minimax(depth, alpha, beta, is_maximizing):
                     markSquare(row, col, 0)
                     bestScore = max(score, bestScore)
 
-                    # alpha-beta pruning
-                    alpha = max(alpha, bestScore)
+                    alpha = max(alpha, bestScore)  # pruning
                     if beta <= alpha:
                         return bestScore
 
@@ -223,8 +222,7 @@ def minimax(depth, alpha, beta, is_maximizing):
                     markSquare(row, col, 0)
                     bestScore = min(score, bestScore)
 
-                    # alpha-beta pruning
-                    beta = min(beta, bestScore)
+                    beta = min(beta, bestScore)  # pruning
                     if beta <= alpha:
                         return bestScore
 
@@ -241,11 +239,7 @@ while run:
         if event.type == pygame.QUIT:
             run = False
         
-        # if not gameOver:
-        #     compMove()
-        #     print(board)
-        #     figures()
-
+        # for comp move
         if player == 1 and not gameOver:
             compMove()
             winner = checkWinner()
@@ -261,8 +255,8 @@ while run:
 
             clicked_row = int(mouseY // s.SQUARE_SIZE)
             clicked_col = int(mouseX // s.SQUARE_SIZE)
+            # for player move
             if availableSquare (clicked_row, clicked_col):
-
                 if player == 2:
                     playerMove(clicked_row, clicked_col, 2)
                     

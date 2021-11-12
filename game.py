@@ -1,6 +1,7 @@
 # Modules
 import pygame
 import numpy as np
+import random
 from pygame.constants import KEYDOWN
 import settings as s
 
@@ -15,6 +16,11 @@ icon = pygame.image.load('icon.png')
 pygame.display.set_icon(icon)
 screen.fill(s.BG_COLOR)
 
+# console board 
+board = np.zeros((3,3))
+
+# Functions
+
 def drawLines():  # Drawing lines function
     # horizontal lines
     pygame.draw.line(screen, s.LINE_COLOR, (0,s.SQUARE_SIZE), (500,s.SQUARE_SIZE), s.LINE_WIDTH)
@@ -23,47 +29,45 @@ def drawLines():  # Drawing lines function
     pygame.draw.line(screen, s.LINE_COLOR, (s.SQUARE_SIZE, 0), (s.SQUARE_SIZE, 500), s.LINE_WIDTH)
     pygame.draw.line(screen, s.LINE_COLOR, (332, 0), (332, 500), s.LINE_WIDTH)
 
-# console board 
-board = np.zeros((3,3))
-
-# Functions
 
 def playerEquals(x, y, z):
     return x!=0 and x==y and y==z
 
+def checkDraw():
+    emp = 0
+    for row in range (s.ROWS):
+        for col in range (s.COLS):
+            if availableSquare(row, col):
+                emp += 1
+    
+    if emp==0:
+        return 'Draw'
+
 def checkWinner():
     winner = None
 
+    winner = checkDraw()
     # vertical win 
     for col in range (s.COLS):
         if playerEquals(board[0][col], board[1][col], board[2][col]):
             winner = board[0][col]
-            vertical_winline(col, winner)
-            return True
     
     # horizontal win
     for row in range (s.ROWS):
         if playerEquals(board[row][0], board[row][1], board[row][2]):
             winner = board[row][0]
-            horizontal_winline(row, winner)
-            return True
     
     # ascending diagonal win 
     if playerEquals(board[2][0], board[1][1], board[0][2]):
         winner = board[2][0]
-        asc_diagonal_winline(winner)
-        return True
 
     # descending diagonal win
     if playerEquals(board[0][0], board[1][1], board[2][2]):
         winner = board[0][0]
-        desc_diagonal_winline(winner)
-        return True
 
-    return False
+    return winner
 
 # functions for drawing winning lines
-
 def vertical_winline(col, winner):
     posX = col * s.SQUARE_SIZE + s.SQUARE_SIZE//2  # column is constant 
     if winner == 1:
@@ -127,37 +131,152 @@ def restart():
         for col in range (s.COLS):
             board[row][col] = 0
 
+def render():
+    x = checkWinner()
+    display(x)
+
+    if x != None and x != 'Draw':
+
+        for col in range (s.COLS):
+            if playerEquals(board[0][col], board[1][col], board[2][col]):
+                winner = board[0][col]
+                vertical_winline(col, winner)
+        
+        # horizontal win
+        for row in range (s.ROWS):
+            if playerEquals(board[row][0], board[row][1], board[row][2]):
+                winner = board[row][0]
+                horizontal_winline(row, winner)
+        
+        # ascending diagonal win 
+        if playerEquals(board[2][0], board[1][1], board[0][2]):
+            winner = board[2][0]
+            asc_diagonal_winline(winner)
+
+        # descending diagonal win
+        if playerEquals(board[0][0], board[1][1], board[2][2]):
+            winner = board[0][0]
+            desc_diagonal_winline(winner)
+
+def display(x):
+    if x == 1:
+        print("O WINS!!\n")
+    elif x == 2:
+        print("X WINS!!\n")
+    elif x == 'Draw':
+        print("DRAW!!\nPress 'R' to play again!\n")
+
+def playerMove(row, col, player):
+    markSquare(row, col, player)
+    return 
+        
+def compMove():
+    bestScore = float('-inf')
+    new_r = new_c = None
+    for row in range(s.ROWS):
+        for col in range(s.COLS):
+            if availableSquare(row, col):
+
+                markSquare(row, col, 1)
+                score = minimax(0, float('-inf'), float('inf'), False)
+                markSquare(row, col, 0)
+                if score > bestScore:
+                    bestScore = score
+                    new_r, new_c = row, col
+    markSquare(new_r, new_c, 1)
+    return
+
+# Minimax ALgorithm
+def minimax(depth, alpha, beta, is_maximizing):
+    winner = checkWinner()
+    if winner != None:
+        return s.score[winner]
+
+    if is_maximizing:
+        bestScore = float('-inf')
+
+        for row in range(s.ROWS):
+            for col in range(s.COLS):
+                if availableSquare(row, col):
+
+                    markSquare(row, col, 1)
+                    score = minimax(depth + 1, alpha, beta, False)
+                    markSquare(row, col, 0)
+                    bestScore = max(score, bestScore)
+
+                    # alpha-beta pruning
+                    alpha = max(alpha, bestScore)
+                    if beta <= alpha:
+                        return bestScore
+
+        return bestScore
+
+    else:
+        bestScore = float('inf')
+
+        for row in range(3):
+            for col in range(3):
+                if availableSquare(row, col):
+
+                    markSquare(row, col, 2)
+                    score = minimax(depth + 1, alpha, beta, True)
+                    markSquare(row, col, 0)
+                    bestScore = min(score, bestScore)
+
+                    # alpha-beta pruning
+                    beta = min(beta, bestScore)
+                    if beta <= alpha:
+                        return bestScore
+
+        return bestScore
 
 drawLines()
-player = 1 # initializing player
+player =  random.choice(s.p) # initializing player
 gameOver = False
-# game loop
 
+# game loop
 run = True
 while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
         
+        # if not gameOver:
+        #     compMove()
+        #     print(board)
+        #     figures()
+
+        if player == 1 and not gameOver:
+            compMove()
+            winner = checkWinner()
+            if winner != None:
+                gameOver = True
+            player = 2
+            figures()
+            render()
+
         if event.type == pygame.MOUSEBUTTONDOWN and not gameOver:
             mouseX = event.pos[0]  # x coordinate
             mouseY = event.pos[1]  # y coordinate
 
             clicked_row = int(mouseY // s.SQUARE_SIZE)
             clicked_col = int(mouseX // s.SQUARE_SIZE)
-
             if availableSquare (clicked_row, clicked_col):
-                
-                markSquare(clicked_row, clicked_col, player)
-                if checkWinner():
+
+                if player == 2:
+                    playerMove(clicked_row, clicked_col, 2)
+                    
+                winner = checkWinner()
+                if winner != None:
                     gameOver = True
-                player = player % 2 + 1
+                player = 1
 
                 figures()
-            
+                render()
+                
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r:
                 restart()
                 gameOver = False # changing gameOver to False for the next game
-                
+
     pygame.display.update()

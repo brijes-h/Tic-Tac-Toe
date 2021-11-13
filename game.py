@@ -45,22 +45,19 @@ def checkDraw():
 
 def checkWinner():
     winner = None
-
+    # check for tie
     winner = checkDraw()
     # vertical win 
     for col in range (s.COLS):
         if playerEquals(board[0][col], board[1][col], board[2][col]):
             winner = board[0][col]
-    
     # horizontal win
     for row in range (s.ROWS):
         if playerEquals(board[row][0], board[row][1], board[row][2]):
             winner = board[row][0]
-    
     # ascending diagonal win 
     if playerEquals(board[2][0], board[1][1], board[0][2]):
         winner = board[2][0]
-
     # descending diagonal win
     if playerEquals(board[0][0], board[1][1], board[2][2]):
         winner = board[0][0]
@@ -77,7 +74,7 @@ def vertical_winline(col, winner):
     pygame.draw.line(screen, color, (posX, 15), (posX, s.HEIGHT-15), 15)
  
 def horizontal_winline(row, winner):
-    posY = row * s.SQUARE_SIZE + s.SQUARE_SIZE//2
+    posY = row * s.SQUARE_SIZE + s.SQUARE_SIZE//2  # row is constant
     if winner == 1:
         color = s.O_COLOR
     else:
@@ -136,23 +133,20 @@ def render():
     display(x)
 
     if x != None and x != 'Draw':
-
+        # vertical win
         for col in range (s.COLS):
             if playerEquals(board[0][col], board[1][col], board[2][col]):
                 winner = board[0][col]
                 vertical_winline(col, winner)
-        
         # horizontal win
         for row in range (s.ROWS):
             if playerEquals(board[row][0], board[row][1], board[row][2]):
                 winner = board[row][0]
                 horizontal_winline(row, winner)
-        
         # ascending diagonal win 
         if playerEquals(board[2][0], board[1][1], board[0][2]):
             winner = board[2][0]
             asc_diagonal_winline(winner)
-
         # descending diagonal win
         if playerEquals(board[0][0], board[1][1], board[2][2]):
             winner = board[0][0]
@@ -160,9 +154,9 @@ def render():
 
 def display(x):
     if x == 1:
-        print("O WINS!!\n")
+        print("O WINS!!\nPress 'R' to play again!\n")
     elif x == 2:
-        print("X WINS!!\n")
+        print("X WINS!!\nPress 'R' to play again!")
     elif x == 'Draw':
         print("DRAW!!\nPress 'R' to play again!\n")
 
@@ -264,7 +258,6 @@ while run:
                 if winner != None:
                     gameOver = True
                 player = 1
-
                 figures()
                 render()
                 

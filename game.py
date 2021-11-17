@@ -130,7 +130,6 @@ def restart():
 
 def render():
     x = checkWinner()
-    display(x)
 
     if x != None and x != 'Draw':
         # vertical win
@@ -152,13 +151,29 @@ def render():
             winner = board[0][0]
             desc_diagonal_winline(winner)
 
+    display(x)
+
 def display(x):
     if x == 1:
-        print("O WINS!!\nPress 'R' to play again!\n")
+        text = "O WINS!!!  Press 'R' to play again!"
+        drawTexttoScreen (screen, text, 250, 250, 'GREEN')
     elif x == 2:
-        print("X WINS!!\nPress 'R' to play again!")
+        text = "X WINS!!!   Press 'R' to play again!"
+        drawTexttoScreen (screen, text, 250, 250)
     elif x == 'Draw':
-        print("DRAW!!\nPress 'R' to play again!\n")
+        text = "DRAW!!!   Press 'R' to play again!"
+        drawTexttoScreen (screen, text, 250, 250)
+
+
+def drawTexttoScreen (screen, text, x, y, color = (250, 0, 0)):
+    font = pygame.font.SysFont('chalkduster.ttf', 30)
+    textSurface = font.render(text, True, color)
+    textRect = textSurface.get_rect()
+
+    textRect.centerx = x
+    textRect.centery = y
+
+    screen.blit(textSurface, textRect)
 
 def playerMove(row, col, player):
     markSquare(row, col, player)
